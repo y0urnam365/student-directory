@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Directory - Mechatronics</title>
+    <title>Student Directory - Single Source</title>
     <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -94,7 +94,7 @@
             background: #0f172a;
             border: 1px solid #334155;
             color: white;
-            padding: 12px 15px 12px 45px; /* space for icon */
+            padding: 12px 15px 12px 45px; 
             border-radius: 10px;
             font-size: 1rem;
             outline: none;
@@ -103,7 +103,7 @@
             font-family: inherit;
         }
         
-        select { padding-left: 15px; } /* Select doesn't have icon in this design */
+        select { padding-left: 15px; } 
 
         input:focus, select:focus {
             border-color: var(--primary);
@@ -356,7 +356,7 @@
 
     <div id="loading">
         <div class="spinner"></div>
-        <span>Syncing data from Cloud...</span>
+        <span>Syncing data from Sheet...</span>
     </div>
     <div id="no-results">No students found matching your criteria.</div>
     
@@ -370,11 +370,11 @@
 
     <script>
         // --- CONFIGURATION ---
+        // ប្រើ Link តែមួយគត់សម្រាប់ទាញយកទិន្នន័យទាំងអស់
         const STUDENT_INFO_URL = 'https://docs.google.com/spreadsheets/d/19ff8RRIBXj4Qe2NaO04kibrKpGJhzZrJ5iH7Pg66Aps/gviz/tq?tqx=out:csv';
-        const ATTENDANCE_URL = 'https://docs.google.com/spreadsheets/d/1Ffoqu4yez0eQAEayXAFL9QJUIDCrkrhcmwmWdhc3zqc/gviz/tq?tqx=out:csv'; 
-        const EXAM_RESULT_URL = 'https://docs.google.com/spreadsheets/d/1kgDCbBvMqznLcMiuoFIFXAOaIlrecu0kxJZWJZsup_s/gviz/tq?tqx=out:csv';
 
-        let mergedData = [];
+        // --- STATE VARIABLES ---
+        let allStudentsData = [];
         let filteredStudents = [];
         let currentPage = 1;
         const itemsPerPage = 8; 
@@ -385,41 +385,32 @@
 
         async function fetchAllData() {
             try {
-                const [infoRes, attRes, examRes] = await Promise.all([
-                    fetch(STUDENT_INFO_URL),
-                    fetch(ATTENDANCE_URL),
-                    fetch(EXAM_RESULT_URL)
-                ]);
+                // Fetch data from SINGLE sheet
+                const response = await fetch(STUDENT_INFO_URL);
 
-                if (!infoRes.ok || !attRes.ok || !examRes.ok) throw new Error("Network Error");
+                if (!response.ok) throw new Error("Network Error");
 
-                const infoText = await infoRes.text();
-                const attText = await attRes.text();
-                const examText = await examRes.text();
+                const csvText = await response.text();
+                const students = csvToJson(csvText);
 
-                const students = csvToJson(infoText);
-                const attendanceRecords = csvToJson(attText);
-                const examRecords = csvToJson(examText);
-
-                mergedData = students.map(student => {
-                    const studentId = String(student.ID).trim();
-                    const att = attendanceRecords.find(a => String(a.ID).trim() === studentId);
-                    const exam = examRecords.find(e => String(e.ID).trim() === studentId);
-
+                // Map data directly from the single source
+                allStudentsData = students.map(student => {
                     return {
                         ...student, 
-                        Attendance: att ? att.Attendance : '0%', 
-                        Total: exam ? exam.Total : '0',           
-                        Grade: exam ? exam.Grade : '-',
-                        PassFail: exam ? exam['Pass/Fail'] : '-'            
+                        // ទាញយក Column ទាំងនេះពី Sheet តែមួយ
+                        Attendance: student.Attendance || '0%', 
+                        Total: student.Total || '0',           
+                        Grade: student.Grade || '-',
+                        // Handle column naming: 'Pass/Fail' or 'PassFail'
+                        PassFail: student['Pass/Fail'] || student.PassFail || '-'            
                     };
                 });
 
                 document.getElementById('loading').style.display = 'none';
-                loadData(mergedData);
+                loadData(allStudentsData);
 
             } catch (error) {
-                console.error("Error fetching sheets:", error);
+                console.error("Error fetching sheet:", error);
                 document.getElementById('loading').innerHTML = "<span style='color:red'>Error loading data. Please check Sheet permissions (Must be 'Anyone with the link').</span>";
             }
         }
@@ -448,8 +439,8 @@
                 
                 const total = student.Total;
                 const grade = student.Grade;
-                const passFail = student.PassFail || '-';
-                const attendance = student.Attendance || '0%';
+                const passFail = student.PassFail;
+                const attendance = student.Attendance;
                 
                 // Logic
                 let statusClass = 'bg-pass';
@@ -520,7 +511,7 @@
             const searchName = document.getElementById('searchName').value.toLowerCase();
             const filterGender = document.getElementById('filterGender').value;
 
-            filteredStudents = mergedData.filter(student => {
+            filteredStudents = allStudentsData.filter(student => {
                 const idMatch = String(student.ID).toLowerCase().includes(searchId);
                 const nameMatch = (student.Name || '').toLowerCase().includes(searchName);
                 let genderMatch = true;
@@ -552,6 +543,8 @@
             if (!csvText) return [];
             const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
             if (rows.length === 0) return [];
+            
+            // Clean headers (remove quotes)
             const headers = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim());
             
             const result = [];
