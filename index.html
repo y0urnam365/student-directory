@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Directory - Mechatronics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- MODERN CSS STYLING --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --card-glass: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;        
+            --secondary: #6366f1;
+            --success: #10b981;        
+            --danger: #ef4444;         
+            --text-light: #f8fafc;
+            --text-gray: #94a3b8;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Poppins', 'Battambang', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background Shapes */
+        .bg-shape {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .shape-1 { top: -100px; left: -100px; width: 400px; height: 400px; background: var(--primary); }
+        .shape-2 { bottom: -100px; right: -100px; width: 300px; height: 300px; background: var(--secondary); }
+
+        /* Header */
+        header { text-align: center; margin-top: 50px; margin-bottom: 40px; animation: fadeInDown 1s ease; }
+        h1 { 
+            margin: 0; 
+            background: linear-gradient(to right, #60a5fa, #a78bfa); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-size: 2.8rem; 
+            font-weight: 700;
+        }
+        p { color: var(--text-gray); margin-top: 10px; font-size: 1.1rem; }
+
+        /* Search Container */
+        .search-container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 90%;
+            max-width: 900px;
+            justify-content: center;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow);
+            animation: fadeInUp 1s ease 0.2s backwards;
+        }
+
+        .input-group {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+        }
+
+        input, select {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 15px 12px 45px; /* space for icon */
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        select { padding-left: 15px; } /* Select doesn't have icon in this design */
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 30px;
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px 0;
+            animation: fadeInUp 1s ease 0.4s backwards;
+        }
+
+        /* --- MODERN FLIP CARD --- */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 380px;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .flip-card:hover .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+        }
+
+        /* Front Side */
+        .flip-card-front {
+            background: var(--card-glass);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 260px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flip-card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .flip-card:hover .flip-card-front img {
+            transform: scale(1.1);
+        }
+
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, #0f172a 0%, transparent 100%);
+        }
+
+        .card-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #1e293b;
+            border-top: 1px solid #334155;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-name { font-weight: 600; font-size: 1.25rem; margin-bottom: 5px; color: white; }
+        .card-id { 
+            color: var(--primary); 
+            font-size: 0.9rem; 
+            font-weight: 500; 
+            background: rgba(59, 130, 246, 0.1); 
+            display: inline-block; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            align-self: center;
+        }
+
+        /* Back Side */
+        .flip-card-back {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: white;
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        .back-title {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #334155;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+
+        .big-score-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .score-val {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        
+        .score-label { font-size: 0.8rem; color: var(--primary); font-weight: 600; letter-spacing: 1px;}
+
+        .details-container { width: 100%; }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+
+        .stat-label { font-size: 0.9rem; color: #cbd5e1; }
+        .stat-val { font-weight: 600; }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+        .bg-pass { background-color: var(--success); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        .bg-fail { background-color: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .attendance-bar {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .attendance-fill { height: 100%; border-radius: 3px; }
+
+        /* Pagination */
+        .pagination { display: flex; gap: 15px; margin-bottom: 50px; }
+        .btn {
+            background-color: #1e293b;
+            color: white;
+            border: 1px solid #334155;
+            padding: 10px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: inherit;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Animations */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Loading & No Results */
+        #loading { margin-top: 40px; font-size: 1.2rem; color: var(--primary); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(59, 130, 246, 0.3);
+            border-top: 4px solid var(--primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #no-results { display: none; margin-top: 40px; color: var(--text-gray); font-size: 1.1rem; }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+
+    <header>
+        <h1>Student Directory</h1>
+        <p>Department of Mechatronics</p>
+    </header>
+
+    <div class="search-container">
+        <div class="input-group">
+            <i class="fas fa-id-card"></i>
+            <input type="text" id="searchId" placeholder="Search ID (អត្តលេខ)...">
+        </div>
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text" id="searchName" placeholder="Search Name (ឈ្មោះ)...">
+        </div>
+        <div class="input-group">
+            <select id="filterGender">
+                <option value="">All Genders (ភេទទាំងអស់)</option>
+                <option value="Male">Male (ប្រុស)</option>
+                <option value="Female">Female (ស្រី)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <span>Syncing data from Cloud...</span>
+    </div>
+    <div id="no-results">No students found matching your criteria.</div>
+    
+    <div class="grid-container" id="studentGrid"></div>
+
+    <div class="pagination">
+        <button class="btn" id="prevBtn" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i> Previous</button>
+        <span id="pageInfo" style="display: flex; align-items: center; color: #cbd5e1; font-weight: 500;">Page 1</span>
+        <button class="btn" id="nextBtn" onclick="changePage(1)">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const STUDENT_INFO_URL = 'https://docs.google.com/spreadsheets/d/19ff8RRIBXj4Qe2NaO04kibrKpGJhzZrJ5iH7Pg66Aps/gviz/tq?tqx=out:csv';
+        const ATTENDANCE_URL = 'https://docs.google.com/spreadsheets/d/1Ffoqu4yez0eQAEayXAFL9QJUIDCrkrhcmwmWdhc3zqc/gviz/tq?tqx=out:csv'; 
+        const EXAM_RESULT_URL = 'https://docs.google.com/spreadsheets/d/1kgDCbBvMqznLcMiuoFIFXAOaIlrecu0kxJZWJZsup_s/gviz/tq?tqx=out:csv';
+
+        let mergedData = [];
+        let filteredStudents = [];
+        let currentPage = 1;
+        const itemsPerPage = 8; 
+
+        async function start() {
+            await fetchAllData();
+        }
+
+        async function fetchAllData() {
+            try {
+                const [infoRes, attRes, examRes] = await Promise.all([
+                    fetch(STUDENT_INFO_URL),
+                    fetch(ATTENDANCE_URL),
+                    fetch(EXAM_RESULT_URL)
+                ]);
+
+                if (!infoRes.ok || !attRes.ok || !examRes.ok) throw new Error("Network Error");
+
+                const infoText = await infoRes.text();
+                const attText = await attRes.text();
+                const examText = await examRes.text();
+
+                const students = csvToJson(infoText);
+                const attendanceRecords = csvToJson(attText);
+                const examRecords = csvToJson(examText);
+
+                mergedData = students.map(student => {
+                    const studentId = String(student.ID).trim();
+                    const att = attendanceRecords.find(a => String(a.ID).trim() === studentId);
+                    const exam = examRecords.find(e => String(e.ID).trim() === studentId);
+
+                    return {
+                        ...student, 
+                        Attendance: att ? att.Attendance : '0%', 
+                        Total: exam ? exam.Total : '0',           
+                        Grade: exam ? exam.Grade : '-',
+                        PassFail: exam ? exam['Pass/Fail'] : '-'            
+                    };
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                loadData(mergedData);
+
+            } catch (error) {
+                console.error("Error fetching sheets:", error);
+                document.getElementById('loading').innerHTML = "<span style='color:red'>Error loading data. Please check Sheet permissions (Must be 'Anyone with the link').</span>";
+            }
+        }
+
+        function loadData(data) {
+            filteredStudents = [...data];
+            currentPage = 1;
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('studentGrid');
+            grid.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredStudents.slice(startIndex, endIndex);
+
+            const noResults = document.getElementById('no-results');
+            noResults.style.display = filteredStudents.length === 0 ? 'block' : 'none';
+
+            pageData.forEach(student => {
+                const imgSrc = student.PhotoURL || '';
+                const name = student.Name || 'Unknown';
+                const id = student.ID || 'N/A';
+                
+                const total = student.Total;
+                const grade = student.Grade;
+                const passFail = student.PassFail || '-';
+                const attendance = student.Attendance || '0%';
+                
+                // Logic
+                let statusClass = 'bg-pass';
+                if(passFail === 'Fail' || grade === 'F') statusClass = 'bg-fail';
+
+                // Attendance Logic
+                let attVal = parseInt(attendance);
+                if(isNaN(attVal)) attVal = 0;
+                let attColor = '#10b981'; // Green
+                if(attVal < 50) attColor = '#ef4444'; // Red
+                else if(attVal < 80) attColor = '#f59e0b'; // Yellow
+
+                const cardContainer = document.createElement('div');
+                cardContainer.className = 'flip-card';
+                cardContainer.innerHTML = `
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="img-wrapper">
+                                <img src="${imgSrc}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${name}&background=random&size=250'">
+                                <div class="overlay"></div>
+                            </div>
+                            <div class="card-info">
+                                <div class="card-name">${name}</div>
+                                <div class="card-id">ID: ${id}</div>
+                            </div>
+                        </div>
+
+                        <div class="flip-card-back">
+                            <div class="back-title">Academic Result</div>
+                            
+                            <div class="big-score-container">
+                                <div class="score-val">${total}</div>
+                                <div class="score-label">TOTAL SCORE</div>
+                            </div>
+
+                            <div class="details-container">
+                                <div class="stat-row">
+                                    <span class="stat-label">Grade (និទ្ទេស)</span>
+                                    <span class="stat-val" style="font-size: 1.2rem;">${grade}</span>
+                                </div>
+                                
+                                <div class="stat-row">
+                                    <span class="stat-label">Status (ស្ថានភាព)</span>
+                                    <span class="status-badge ${statusClass}">${passFail}</span>
+                                </div>
+
+                                <div style="margin-top: 15px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:5px;">
+                                        <span style="color:#cbd5e1">Attendance (វត្តមាន)</span>
+                                        <span style="font-weight:bold; color:${attColor}">${attendance}</span>
+                                    </div>
+                                    <div class="attendance-bar">
+                                        <div class="attendance-fill" style="width: ${attVal}%; background-color: ${attColor};"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(cardContainer);
+            });
+
+            updatePagination(endIndex);
+        }
+
+        function applyFilters() {
+            const searchId = document.getElementById('searchId').value.toLowerCase();
+            const searchName = document.getElementById('searchName').value.toLowerCase();
+            const filterGender = document.getElementById('filterGender').value;
+
+            filteredStudents = mergedData.filter(student => {
+                const idMatch = String(student.ID).toLowerCase().includes(searchId);
+                const nameMatch = (student.Name || '').toLowerCase().includes(searchName);
+                let genderMatch = true;
+                if (filterGender) {
+                    const genderVal = (student.Gender || '');
+                    if (filterGender === 'Male') genderMatch = (genderVal === 'Male' || genderVal === 'ប្រុស');
+                    if (filterGender === 'Female') genderMatch = (genderVal === 'Female' || genderVal === 'ស្រី');
+                }
+                return idMatch && nameMatch && genderMatch;
+            });
+
+            currentPage = 1;
+            renderGrid();
+        }
+
+        function updatePagination(endIndex) {
+            const totalPages = Math.ceil(filteredStudents.length / itemsPerPage) || 1;
+            document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = endIndex >= filteredStudents.length;
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderGrid();
+        }
+
+        function csvToJson(csvText) {
+            if (!csvText) return [];
+            const rows = csvText.split('\n').map(row => row.trim()).filter(row => row.length > 0);
+            if (rows.length === 0) return [];
+            const headers = rows[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.replace(/^"|"$/g, '').trim());
+            
+            const result = [];
+            for (let i = 1; i < rows.length; i++) {
+                const values = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (values.length > 0) {
+                    const obj = {};
+                    headers.forEach((header, index) => {
+                        let val = values[index] ? values[index].replace(/^"|"$/g, '').trim() : '';
+                        obj[header] = val;
+                    });
+                    result.push(obj);
+                }
+            }
+            return result;
+        }
+
+        document.getElementById('searchId').addEventListener('input', applyFilters);
+        document.getElementById('searchName').addEventListener('input', applyFilters);
+        document.getElementById('filterGender').addEventListener('change', applyFilters);
+        
+        start();
+    </script>
+</body>
+</html>
