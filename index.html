@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Student Directory - Mechatronics</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- MODERN VARIABLES --- */
+        /* --- VARIABLES --- */
         :root {
             --bg-body: #0f172a;
             --surface: rgba(30, 41, 59, 0.7);
@@ -53,29 +53,29 @@
         header { 
             text-align: center; 
             margin-top: 40px; 
-            margin-bottom: 30px; 
+            margin-bottom: 20px; 
             animation: fadeInDown 0.8s ease; 
             padding: 0 20px;
         }
         h1 { 
             margin: 0; 
-            font-size: 2.2rem; 
+            font-size: 2rem; /* Adjusted for mobile */
             font-weight: 700;
             background: linear-gradient(to right, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        p { color: var(--text-muted); margin-top: 8px; font-size: 1rem; letter-spacing: 0.5px; }
+        p { color: var(--text-muted); margin-top: 8px; font-size: 1rem; }
 
-        /* Search Container */
+        /* Search Container (Responsive) */
         .search-container {
             background: var(--surface);
             backdrop-filter: blur(12px);
             padding: 20px;
             border-radius: 16px;
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 15px;
+            flex-wrap: wrap; /* Important for mobile */
             width: 90%;
             max-width: 900px;
             border: 1px solid var(--border);
@@ -83,7 +83,29 @@
             animation: fadeInUp 0.8s ease 0.2s backwards;
         }
 
-        .input-group { position: relative; flex: 1; min-width: 200px; }
+        .input-group { 
+            position: relative; 
+            flex: 1; 
+            min-width: 200px; 
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column; /* Stack vertically on mobile */
+                gap: 10px;
+                padding: 15px;
+            }
+            .input-group {
+                width: 100%;
+                min-width: 100%;
+            }
+            .grid-container {
+                grid-template-columns: 1fr; /* 1 column on mobile */
+                gap: 20px;
+            }
+        }
+
         .input-group i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
         input, select {
@@ -170,6 +192,12 @@
         
         .flip-card:hover .flip-card-front img { transform: scale(1.05); }
 
+        .overlay {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to top, #0f172a 0%, transparent 100%);
+        }
+
         .card-info {
             padding: 15px;
             flex-grow: 1;
@@ -182,7 +210,7 @@
             z-index: 2;
         }
 
-        .card-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 5px; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 5px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .card-id { color: var(--primary); font-size: 0.85rem; font-weight: 500; background: rgba(59, 130, 246, 0.1); display: inline-block; padding: 2px 10px; border-radius: 12px; align-self: center; }
 
         /* Back Side */
@@ -215,16 +243,17 @@
         .details-container { width: 100%; }
         .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px 10px; background: rgba(255,255,255,0.03); border-radius: 8px; }
         .stat-label { font-size: 0.85rem; color: #cbd5e1; }
-        .stat-val { font-weight: 600; font-size: 0.95rem; }
+        .stat-val { font-weight: 600; font-size: 1rem; }
+
+        /* --- GRADE COLORS --- */
+        .grade-green { color: var(--success); text-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
+        .grade-yellow { color: var(--warning); text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+        .grade-red { color: var(--danger); text-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
 
         /* Badges */
         .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; color: white; text-transform: uppercase; }
         .bg-pass { background-color: var(--success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
         .bg-fail { background-color: var(--danger); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
-
-        .grade-a, .grade-b { color: var(--success); }
-        .grade-c, .grade-d { color: var(--warning); }
-        .grade-f { color: var(--danger); }
 
         .attendance-bar { width: 100%; height: 6px; background: #334155; border-radius: 3px; margin-top: 6px; overflow: hidden; }
         .attendance-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
@@ -240,8 +269,23 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        #loading { margin-top: 60px; display: flex; flex-direction: column; align-items: center; gap: 15px; color: var(--text-muted); }
-        .spinner { width: 35px; height: 35px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        /* Loading Overlay Style */
+        #loading { 
+            margin-top: 60px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+            color: var(--text-muted);
+            transition: opacity 0.5s;
+        }
+        .spinner { 
+            width: 40px; height: 40px; 
+            border: 4px solid rgba(255,255,255,0.1); 
+            border-top-color: var(--primary); 
+            border-radius: 50%; 
+            animation: spin 0.8s linear infinite; 
+        }
         #no-results { display: none; margin-top: 40px; color: var(--text-muted); font-size: 1rem; }
 
     </style>
@@ -253,7 +297,7 @@
 
     <header>
         <h1>Student Directory</h1>
-        <p>Department of Mechatronics</p>
+        <p>Mechatronics 4GY3 (C Programming)</p>
     </header>
 
     <div class="search-container">
@@ -278,6 +322,7 @@
         <div class="spinner"></div>
         <span>Syncing data from Cloud...</span>
     </div>
+
     <div id="no-results">No students found matching your criteria.</div>
     
     <div class="grid-container" id="studentGrid"></div>
@@ -304,6 +349,7 @@
 
         async function fetchAllData() {
             try {
+                // Fetch data
                 const response = await fetch(STUDENT_INFO_URL);
                 if (!response.ok) throw new Error("Network Error");
 
@@ -320,8 +366,11 @@
                     };
                 });
 
-                document.getElementById('loading').style.display = 'none';
-                loadData(allStudentsData);
+                // Add a small delay to show the animation (optional, creates smooth feel)
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    loadData(allStudentsData);
+                }, 500);
 
             } catch (error) {
                 console.error("Error fetching sheet:", error);
@@ -360,11 +409,11 @@
                 let statusClass = 'bg-pass';
                 if(passFail === 'Fail' || grade === 'F') statusClass = 'bg-fail';
 
-                // Grade Color Logic
+                // --- NEW: Grade Color Logic ---
                 let gradeClass = '';
-                if(grade.includes('A') || grade.includes('B')) gradeClass = 'grade-a';
-                else if(grade.includes('C') || grade.includes('D')) gradeClass = 'grade-c';
-                else if(grade === 'F') gradeClass = 'grade-f';
+                if(grade.match(/^[AB]/)) gradeClass = 'grade-green'; // A, A+, B, B-
+                else if(grade.match(/^[CD]/)) gradeClass = 'grade-yellow'; // C, D
+                else if(grade.match(/^F/)) gradeClass = 'grade-red'; // F
 
                 // Attendance Logic
                 let attVal = parseInt(attendance);
@@ -399,7 +448,7 @@
                             <div class="details-container">
                                 <div class="stat-row">
                                     <span class="stat-label">Grade (និទ្ទេស)</span>
-                                    <span class="stat-val ${gradeClass}" style="font-size: 1.2rem;">${grade}</span>
+                                    <span class="stat-val ${gradeClass}" style="font-size: 1.4rem;">${grade}</span>
                                 </div>
                                 
                                 <div class="stat-row">
